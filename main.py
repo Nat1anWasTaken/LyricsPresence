@@ -63,8 +63,8 @@ async def main():
 
     async def lyric_callback(line: LyricLine):
         await presence.update(
-            large_image="spotify",
-            large_text="Spotify",
+            large_image="lyrics",
+            large_text="Lyrics",
             small_image="play",
             small_text="Playing",
             details=f"{last_track['name']} by {last_track['artists'][0]['name']}" if last_track else "Nothing playing",
