@@ -45,17 +45,6 @@ def initialize_spotipy(client_id: str, client_secret: str, redirect_uri: str) ->
     return spotify
 
 
-def lyric_callback(presence: AioPresence):
-    async def callback(lyric: LyricLine):
-        logger.info(lyric.text)
-
-        await presence.update(
-            details=lyric.text
-        )
-
-    return callback
-
-
 async def main():
     load_dotenv()
 
@@ -70,8 +59,19 @@ async def main():
     presence = AioPresence(client_id=getenv("DISCORD_CLIENT_ID"))
     await presence.connect()
 
-    player = Player(lyric_callback=lyric_callback(presence))
-    last_track_id = None
+    last_track = None
+
+    async def lyric_callback(line: LyricLine):
+        await presence.update(
+            large_image="spotify",
+            large_text="Spotify",
+            small_image="play",
+            small_text="Playing",
+            details=f"{last_track['name']} by {last_track['artists'][0]['name']}" if last_track else "Nothing playing",
+            state=line.text
+        )
+
+    player = Player(lyric_callback=lyric_callback)
 
     while True:
         try:
@@ -90,19 +90,11 @@ async def main():
 
             continue
 
-        if not current_playback["item"]["id"] == last_track_id:
-            last_track_id = current_playback["item"]["id"]
+        if not last_track or not current_playback["item"]["id"] == last_track["id"]:
+            last_track = current_playback["item"]
             lyrics = get_lyrics(current_playback["item"])
 
             await player.set_lyrics(lyrics)
-
-            await presence.update(
-                large_image="spotify",
-                large_text="Spotify",
-                small_image="play",
-                small_text="Playing",
-                state=current_playback["item"]["name"]
-            )
 
         await player.set_progress(current_playback["progress_ms"] / 1000)
 
