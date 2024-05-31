@@ -1,2 +1,6 @@
 spotipy==2.24.0
-discord-rich-presence==1.1.0
+python-dotenv==1.0.1
+rich==13.7.1
+syncedlyrics==0.10.1
+pylrc==0.1.2
+pypresence==4.3.0
