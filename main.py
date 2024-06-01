@@ -62,6 +62,8 @@ async def main():
     last_track = None
 
     async def lyric_callback(line: LyricLine):
+        logger.info(f"[{line.time}] {line.text}")
+
         await presence.update(
             large_image="lyrics",
             large_text="Lyrics",
@@ -86,7 +88,7 @@ async def main():
             )
 
             await player.stop()
-            await asyncio.sleep(5)
+            await asyncio.sleep(int(getenv("SPOTIFY_POLL_INTERVAL", "5")))
 
             continue
 
